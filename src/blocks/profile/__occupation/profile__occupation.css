@@ -1,0 +1,34 @@
+.profile__occupation {
+  min-width: 450px;
+  max-width: 450px;
+  padding: 0;
+  margin: 16px 0 0 0;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.21;
+  color: #FFFFFF;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  }
+
+
+@media screen and (max-width: 990px) {
+  .profile__occupation {
+    min-width: 250px;
+    max-width: 250px;
+    font-size: 16px;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .profile__occupation {
+    min-width: 270px;
+    max-width: 270px;
+    font-size: 14px;
+    line-height: 1.21;
+    margin-top: 8.5px;
+    text-align: center;
+  }
+}

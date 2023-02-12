@@ -1,0 +1,5 @@
+.element__like-button_active {
+  background-image: url(../../../../images/like-active-button.svg);
+  cursor: pointer;
+  opacity: 1;
+}
