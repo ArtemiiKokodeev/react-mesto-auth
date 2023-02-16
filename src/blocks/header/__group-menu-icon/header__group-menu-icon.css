@@ -1,0 +1,9 @@
+.header__group-menu-icon {
+  display: none;
+}
+
+@media screen and (max-width: 650px) {
+  .header__group-menu-icon {
+    display: block;
+  }
+}

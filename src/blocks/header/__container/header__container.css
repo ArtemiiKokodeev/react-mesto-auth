@@ -1,0 +1,12 @@
+.header__container {
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+
+@media screen and (max-width: 650px) {
+  .header__container {
+    display: none;
+  }
+}

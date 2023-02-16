@@ -1,3 +1,9 @@
+import { React, useEffect, useState } from 'react';
+import { Route, Routes, useNavigate } from 'react-router-dom';
+import { apiNew } from '../utils/Api';
+import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import * as Auth from './Auth';
+import ProtectedRoute from './ProtectedRoute';
 import Header from './Header';
 import Main from './Main';
 import EditProfilePopup from './EditProfilePopup';
@@ -5,9 +11,9 @@ import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
 import Footer from './Footer';
-import { React, useEffect, useState } from 'react';
-import { apiNew } from '../utils/Api';
-import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import Login from './Login';
+import Register from './Register';
+import InfoTooltip from './InfoTooltip';
 
 function App() {
 
@@ -17,6 +23,12 @@ function App() {
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [isSuccessRegistPopupOpen, setIsSuccessRegistPopupOpen] = useState(false);
+  const [isUnsuccessAuthPopupOpen, setIsUnsuccessAuthPopupOpen] = useState(false);
+  const [errorText, setErrorText] = useState("");
+  const [userEmail, setUserEmail] = useState("")
 
   useEffect(() => {
     Promise.all([apiNew.getProfileInfo(), apiNew.getInitialCards()])
@@ -30,6 +42,26 @@ function App() {
       console.log(`Ошибка при первичной загрузке профиля и карточек: ${error}`)
     })
 }, [])
+
+  useEffect(() => {
+    handleTokenCheck();
+  }, [])
+
+  const navigate = useNavigate();
+
+  function handleTokenCheck() {
+    if (localStorage.getItem('jwt')){
+      const jwt = localStorage.getItem('jwt');
+      Auth.checkToken(jwt).then((res) => {
+        if (res) {
+          //console.log(res.data.email);
+          handleEmail(res.data.email);
+          setLoggedIn(true);
+          navigate("/", {replace: true})
+        }
+      });
+    }
+  }
 
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
@@ -48,6 +80,8 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setSelectedCard(null);
+    setIsSuccessRegistPopupOpen(false);
+    setIsUnsuccessAuthPopupOpen(false);
   }
 
   function handleUpdateUser(userInfo) {
@@ -111,20 +145,68 @@ function App() {
     })
   } 
 
+  function handleSuccessRegistClick() {
+    setIsSuccessRegistPopupOpen(true);
+  }
+
+  function handleUnsuccessAuthClick() {
+    setIsUnsuccessAuthPopupOpen(true);
+  }
+
+  function handleLogin() {
+    setLoggedIn(true);
+  }
+
+  function handleError(error) {
+    setErrorText(error);
+  }
+
+  function handleEmail(email) {
+    setUserEmail(email);
+  }
+
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
-        <Header />
+        <Header 
+          email={userEmail}
+          handleEmail={handleEmail}
+          handleLogin={handleLogin}/>
 
-        <Main 
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onEditAvatar={handleEditAvatarClick}
-          onCardClick={setSelectedCard}
-          cards={cards}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-        />
+        <Routes>
+          <Route exact path="/"
+            element={
+              <ProtectedRoute
+                loggedIn={loggedIn}
+                onEditProfile={handleEditProfileClick}
+                onAddPlace={handleAddPlaceClick}
+                onEditAvatar={handleEditAvatarClick}
+                onCardClick={setSelectedCard}
+                cards={cards}
+                onCardLike={handleCardLike}
+                onCardDelete={handleCardDelete}
+                component={Main}
+              />
+            } 
+          />
+          <Route path="/sign-in" 
+            element={<Login 
+              handleLogin={handleLogin}
+              onUnsuccessAuth={handleUnsuccessAuthClick}
+              handleError={handleError}
+              handleTokenCheck={handleTokenCheck}
+            />}
+          />
+          <Route path="/sign-up" 
+            element={<Register 
+              onSuccessRegist={handleSuccessRegistClick}
+              onUnsuccessAuth={handleUnsuccessAuthClick}
+              handleError={handleError}
+            />}
+          />
+        </Routes>
+
+        <Footer />
 
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -149,7 +231,12 @@ function App() {
           onClose={closeAllPopups}
         />
 
-        <Footer />
+        <InfoTooltip
+          isSuccessRegistOpen={isSuccessRegistPopupOpen}
+          isUnsuccessAuthOpen={isUnsuccessAuthPopupOpen}
+          errorText={errorText}
+          onClose={closeAllPopups}
+        />
       </CurrentUserContext.Provider>
     </div>
   );
