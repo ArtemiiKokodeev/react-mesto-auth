@@ -1,9 +1,7 @@
 import { React, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import * as Auth from './Auth';
+import * as Auth from '../utils/Auth';
 
-// пробрасываю handleLogin
-function Login( { handleLogin, onUnsuccessAuth, handleError, handleTokenCheck } ) {
+function Login( { onLogin, onError } ) {
 
   const [formValue, setFormValue] = useState({
     email: '',
@@ -19,25 +17,18 @@ function Login( { handleLogin, onUnsuccessAuth, handleError, handleTokenCheck } 
     });
   }
 
-  const navigate = useNavigate();
-
   const handleSubmit = (e) => {
     e.preventDefault();
     Auth.authorize(formValue.email, formValue.password)
       .then((data) => {
         if (data.token){
-          //console.log(data)
           setFormValue({email: '', password: ''});
-          handleLogin();
-          handleTokenCheck();
-          navigate('/', {replace: true});
-        } else if (data.message === "Incorrect email address or password") {
-          //console.log(data.message)
-          handleError("Вами введен неправильный e-mail или пароль. Попробуйте еще раз.")
-          onUnsuccessAuth();
-        }
+          onLogin();
+        } 
       })
-     .catch(err => console.log(err));
+     .catch((err) => {
+        onError();
+     });
   }
 
   return (

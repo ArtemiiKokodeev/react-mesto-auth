@@ -2,7 +2,7 @@ import { React, useEffect, useState } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { apiNew } from '../utils/Api';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
-import * as Auth from './Auth';
+import * as Auth from '../utils/Auth';
 import ProtectedRoute from './ProtectedRoute';
 import Header from './Header';
 import Main from './Main';
@@ -25,13 +25,13 @@ function App() {
   const [selectedCard, setSelectedCard] = useState(null);
   
   const [loggedIn, setLoggedIn] = useState(false);
-  const [isSuccessRegistPopupOpen, setIsSuccessRegistPopupOpen] = useState(false);
-  const [isUnsuccessAuthPopupOpen, setIsUnsuccessAuthPopupOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isAuthPopupOpen, setIsAuthPopupOpen] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [userEmail, setUserEmail] = useState("")
 
   useEffect(() => {
-    Promise.all([apiNew.getProfileInfo(), apiNew.getInitialCards()])
+    {loggedIn && Promise.all([apiNew.getProfileInfo(), apiNew.getInitialCards()])
     .then(([initUserInfo, initCards]) => {
       //console.log(initCards)
       //console.log(initUserInfo)
@@ -41,7 +41,7 @@ function App() {
     .catch((error) => {
       console.log(`Ошибка при первичной загрузке профиля и карточек: ${error}`)
     })
-}, [])
+  }}, [loggedIn])
 
   useEffect(() => {
     handleTokenCheck();
@@ -50,16 +50,20 @@ function App() {
   const navigate = useNavigate();
 
   function handleTokenCheck() {
-    if (localStorage.getItem('jwt')){
-      const jwt = localStorage.getItem('jwt');
-      Auth.checkToken(jwt).then((res) => {
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) {
+      Auth.checkToken(jwt)
+      .then((res) => {
         if (res) {
           //console.log(res.data.email);
           handleEmail(res.data.email);
           setLoggedIn(true);
           navigate("/", {replace: true})
         }
-      });
+      })
+      .catch((err) => {
+        console.log(`Ошибка при проверке токена: ${err}`)
+     });
     }
   }
 
@@ -80,8 +84,7 @@ function App() {
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
     setSelectedCard(null);
-    setIsSuccessRegistPopupOpen(false);
-    setIsUnsuccessAuthPopupOpen(false);
+    setIsAuthPopupOpen(false);
   }
 
   function handleUpdateUser(userInfo) {
@@ -145,19 +148,38 @@ function App() {
     })
   } 
 
-  function handleSuccessRegistClick() {
-    setIsSuccessRegistPopupOpen(true);
+  function handleIsSuccess(state) {
+    setIsSuccess(state);
   }
 
-  function handleUnsuccessAuthClick() {
-    setIsUnsuccessAuthPopupOpen(true);
+  function handleAuthPopupOpen() {
+    setIsAuthPopupOpen(true);
   }
 
   function handleLogin() {
     setLoggedIn(true);
+    handleTokenCheck();
+    navigate('/', {replace: true});
   }
 
-  function handleError(error) {
+  function handleLoginError() {
+    handleTextError("Вами введен неправильный e-mail или пароль. Попробуйте еще раз.")
+    handleIsSuccess(false);
+    handleAuthPopupOpen();
+  }
+
+  function handleRegister() {
+    handleIsSuccess(true);
+    handleAuthPopupOpen();
+  }
+
+  function handleRegisterError() {
+    handleTextError("Аккаунт с введенным e-mail уже зарегистрирован. Попробуйте еще раз.")
+    handleIsSuccess(false);
+    handleAuthPopupOpen();
+  }
+
+  function handleTextError(error) {
     setErrorText(error);
   }
 
@@ -191,17 +213,14 @@ function App() {
           />
           <Route path="/sign-in" 
             element={<Login 
-              handleLogin={handleLogin}
-              onUnsuccessAuth={handleUnsuccessAuthClick}
-              handleError={handleError}
-              handleTokenCheck={handleTokenCheck}
+              onLogin={handleLogin}
+              onError={handleLoginError}
             />}
           />
           <Route path="/sign-up" 
             element={<Register 
-              onSuccessRegist={handleSuccessRegistClick}
-              onUnsuccessAuth={handleUnsuccessAuthClick}
-              handleError={handleError}
+              onRegister={handleRegister}
+              onError={handleRegisterError}
             />}
           />
         </Routes>
@@ -232,8 +251,8 @@ function App() {
         />
 
         <InfoTooltip
-          isSuccessRegistOpen={isSuccessRegistPopupOpen}
-          isUnsuccessAuthOpen={isUnsuccessAuthPopupOpen}
+          isSuccess={isSuccess}
+          isAuthPopupOpen={isAuthPopupOpen}
           errorText={errorText}
           onClose={closeAllPopups}
         />

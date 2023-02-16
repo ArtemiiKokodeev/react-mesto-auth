@@ -1,8 +1,8 @@
 import { React, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import * as Auth from './Auth';
+import * as Auth from '../utils/Auth';
 
-function Register( { onSuccessRegist, onUnsuccessAuth, handleError } ) {
+function Register( { onRegister, onError} ) {
 
   const [formValue, setFormValue] = useState({
     email: '',
@@ -22,15 +22,12 @@ function Register( { onSuccessRegist, onUnsuccessAuth, handleError } ) {
     e.preventDefault();
     Auth.register(formValue.email, formValue.password)
     .then((res) => {
-      if (res.error) {
-        //console.log(res.error);
-        handleError(res.error)
-        onUnsuccessAuth();
-      } else {
-        onSuccessRegist();
-      }
+      setFormValue({email: '', password: ''});
+      onRegister();
     })
-    .catch(err => console.log(err));
+    .catch((err) => {
+      onError();
+   });
   }
 
   return (
@@ -73,7 +70,7 @@ function Register( { onSuccessRegist, onUnsuccessAuth, handleError } ) {
       </form>
       <div className="register__sign-in">
         <p>Уже зарегистрированы?</p>
-        <Link to="sign-in" className="register__login-link">Войти</Link>
+        <Link to="/sign-in" className="register__login-link">Войти</Link>
       </div>
     </div>
   );
