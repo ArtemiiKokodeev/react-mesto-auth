@@ -1,7 +1,7 @@
 import { React, useState } from 'react';
 import * as Auth from '../utils/Auth';
 
-function Login( { onLogin, onError } ) {
+function Login( { onLogin } ) {
 
   const [formValue, setFormValue] = useState({
     email: '',
@@ -19,16 +19,7 @@ function Login( { onLogin, onError } ) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    Auth.authorize(formValue.email, formValue.password)
-      .then((data) => {
-        if (data.token){
-          setFormValue({email: '', password: ''});
-          onLogin();
-        } 
-      })
-     .catch((err) => {
-        onError();
-     });
+    onLogin(formValue.email, formValue.password);
   }
 
   return (

@@ -2,7 +2,7 @@ import { React, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as Auth from '../utils/Auth';
 
-function Register( { onRegister, onError} ) {
+function Register( { onRegister } ) {
 
   const [formValue, setFormValue] = useState({
     email: '',
@@ -20,14 +20,7 @@ function Register( { onRegister, onError} ) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    Auth.register(formValue.email, formValue.password)
-    .then((res) => {
-      setFormValue({email: '', password: ''});
-      onRegister();
-    })
-    .catch((err) => {
-      onError();
-   });
+    onRegister(formValue.email, formValue.password);
   }
 
   return (

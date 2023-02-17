@@ -4,12 +4,12 @@ import headerLogo from '../images/header-logo.svg';
 import headerGroupMenu from '../images/group-menu.svg';
 import headerCloseIcon from '../images/close-icon.svg';
 
-function Header( { email, handleEmail, handleLogin } ) {
+function Header( { email, handleEmail, onLoggedIn } ) {
 
   function onSingOut() {
     localStorage.removeItem("jwt");
     handleEmail("");
-    handleLogin(false);
+    onLoggedIn(false);
     setGroupMenuList(false)
   }
 

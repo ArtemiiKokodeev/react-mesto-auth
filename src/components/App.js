@@ -49,6 +49,36 @@ function App() {
 
   const navigate = useNavigate();
 
+  function handleRegister(email, password) {
+    Auth.register(email, password)
+      .then((res) => {
+        setIsSuccess(true);
+        setIsAuthPopupOpen(true);
+      })
+      .catch((err) => {
+        setErrorText("Аккаунт с введенным e-mail уже зарегистрирован. Попробуйте еще раз.")
+        setIsSuccess(false);
+        setIsAuthPopupOpen(true);
+   });
+    
+  }
+
+  function handleLogin(email, password) {
+    Auth.authorize(email, password)
+      .then((data) => {
+        if (data.token){
+          setLoggedIn(true);
+          handleTokenCheck();
+          navigate('/', {replace: true});
+        } 
+      })
+     .catch((err) => {
+        setErrorText("Вами введен неправильный e-mail или пароль. Попробуйте еще раз.")
+        setIsSuccess(false);
+        setIsAuthPopupOpen(true);
+     });
+  }
+
   function handleTokenCheck() {
     const jwt = localStorage.getItem('jwt');
     if (jwt) {
@@ -65,6 +95,10 @@ function App() {
         console.log(`Ошибка при проверке токена: ${err}`)
      });
     }
+  }
+
+  function handleEmail(email) {
+    setUserEmail(email);
   }
 
   function handleEditProfileClick() {
@@ -148,52 +182,13 @@ function App() {
     })
   } 
 
-  function handleIsSuccess(state) {
-    setIsSuccess(state);
-  }
-
-  function handleAuthPopupOpen() {
-    setIsAuthPopupOpen(true);
-  }
-
-  function handleLogin() {
-    setLoggedIn(true);
-    handleTokenCheck();
-    navigate('/', {replace: true});
-  }
-
-  function handleLoginError() {
-    handleTextError("Вами введен неправильный e-mail или пароль. Попробуйте еще раз.")
-    handleIsSuccess(false);
-    handleAuthPopupOpen();
-  }
-
-  function handleRegister() {
-    handleIsSuccess(true);
-    handleAuthPopupOpen();
-  }
-
-  function handleRegisterError() {
-    handleTextError("Аккаунт с введенным e-mail уже зарегистрирован. Попробуйте еще раз.")
-    handleIsSuccess(false);
-    handleAuthPopupOpen();
-  }
-
-  function handleTextError(error) {
-    setErrorText(error);
-  }
-
-  function handleEmail(email) {
-    setUserEmail(email);
-  }
-
   return (
     <div className="page">
       <CurrentUserContext.Provider value={currentUser}>
         <Header 
           email={userEmail}
           handleEmail={handleEmail}
-          handleLogin={handleLogin}/>
+          onLoggedIn={setLoggedIn}/>
 
         <Routes>
           <Route exact path="/"
@@ -214,13 +209,11 @@ function App() {
           <Route path="/sign-in" 
             element={<Login 
               onLogin={handleLogin}
-              onError={handleLoginError}
             />}
           />
           <Route path="/sign-up" 
             element={<Register 
               onRegister={handleRegister}
-              onError={handleRegisterError}
             />}
           />
         </Routes>
