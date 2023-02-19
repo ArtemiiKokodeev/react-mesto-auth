@@ -28,7 +28,7 @@ function App() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [isAuthPopupOpen, setIsAuthPopupOpen] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const [userEmail, setUserEmail] = useState("")
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     {loggedIn && Promise.all([apiNew.getProfileInfo(), apiNew.getInitialCards()])
