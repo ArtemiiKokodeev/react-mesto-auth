@@ -1,5 +1,4 @@
 import { React, useState } from 'react';
-import * as Auth from '../utils/Auth';
 
 function Login( { onLogin } ) {
 

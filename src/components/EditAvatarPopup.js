@@ -1,7 +1,7 @@
 import PopupWithForm from './PopupWithForm';
 import { React, useEffect, useState, useRef } from 'react';
 
-function EditAvatarPopup( { isOpen, onClose, onUpdateAvatar } ) {
+function EditAvatarPopup( { isOpen, onClose, onCloseOverlayClick, onUpdateAvatar } ) {
 
   const avatarRef = useRef();
   const [submitButtonText, setSubmitButtonText] = useState("Сохранить");
@@ -22,10 +22,12 @@ function EditAvatarPopup( { isOpen, onClose, onUpdateAvatar } ) {
     <PopupWithForm 
       name="editAvatarForm"
       title="Обновить аватар"
+      type="edit-avatar"
       submitButtonText={submitButtonText}
       onSubmit={handleSubmit}
       isOpen={isOpen}
       onClose={onClose}
+      onCloseOverlayClick={onCloseOverlayClick}
       children={(
         <label className="popup__text-field">
           <input 

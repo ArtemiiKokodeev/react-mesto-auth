@@ -2,7 +2,7 @@ import PopupWithForm from './PopupWithForm';
 import { React, useEffect, useState, useContext } from 'react';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 
-function EditProfilePopup( { isOpen, onClose, onUpdateUser } ) {
+function EditProfilePopup( { isOpen, onClose, onCloseOverlayClick, onUpdateUser } ) {
 
   // Подписка на контекст
   const currentUser = useContext(CurrentUserContext);
@@ -42,10 +42,12 @@ function EditProfilePopup( { isOpen, onClose, onUpdateUser } ) {
     <PopupWithForm 
       name="userInfoForm"
       title="Редактировать профиль"
+      type="edit-profile"
       submitButtonText={submitButtonText}
       onSubmit={handleSubmit}
       isOpen={isOpen}
       onClose={onClose}
+      onCloseOverlayClick={onCloseOverlayClick}
       children={(
         <>
           <label className="popup__text-field">

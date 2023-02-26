@@ -5,3 +5,5 @@ export const apiConfig = {
     authorization: '59fe9cd6-0f57-4ebd-bbbd-39bb16004429'
   }
 }
+
+export const BASE_URL = 'https://auth.nomoreparties.co/';

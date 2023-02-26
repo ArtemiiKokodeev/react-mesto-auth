@@ -7,7 +7,8 @@ function InfoTooltip( {
   isSuccess, 
   isAuthPopupOpen,
   errorText, 
-  onClose } ) {
+  onClose,
+  onCloseOverlayClick } ) {
 
   const navigate = useNavigate();
   
@@ -17,7 +18,7 @@ function InfoTooltip( {
   }
 
   return (
-    <div className={`popup ${isAuthPopupOpen && 'popup_opened'}`}>
+    <div className={`popup ${isAuthPopupOpen && 'popup_opened'}`} onClick={onCloseOverlayClick}>
       <div className="popup__container">
         <button onClick={isSuccess ? closeSuccessRegistPopup : onClose} className="popup__close" type="button"></button>
         <div className="popup__info-container">

@@ -10,6 +10,7 @@ import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import ImagePopup from './ImagePopup';
+import DeleteConfirmPopup from './DeleteConfirmPopup';
 import Footer from './Footer';
 import Login from './Login';
 import Register from './Register';
@@ -22,7 +23,9 @@ function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
-  const [selectedCard, setSelectedCard] = useState(null);
+  const [isDeleteConfirmPopupOpen, setIsDeleteConfirmPopupOpen] = useState(false);
+  const [selectedCardForOpen, setSelectedCardForOpen] = useState(null);
+  const [selectedCardForDelete, setSelectedCardForDelete] = useState(null);
   
   const [loggedIn, setLoggedIn] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -47,6 +50,10 @@ function App() {
     handleTokenCheck();
   }, [])
 
+  useEffect(() => {
+    document.addEventListener("keydown", closePopupWithEsc);
+  }, []);
+
   const navigate = useNavigate();
 
   function handleRegister(email, password) {
@@ -67,9 +74,8 @@ function App() {
     Auth.authorize(email, password)
       .then((data) => {
         if (data.token){
-          setLoggedIn(true);
+          localStorage.setItem("jwt", data.token);
           handleTokenCheck();
-          navigate('/', {replace: true});
         } 
       })
      .catch((err) => {
@@ -85,7 +91,6 @@ function App() {
       Auth.checkToken(jwt)
       .then((res) => {
         if (res) {
-          //console.log(res.data.email);
           handleEmail(res.data.email);
           setLoggedIn(true);
           navigate("/", {replace: true})
@@ -113,12 +118,26 @@ function App() {
     setIsEditAvatarPopupOpen(true);
   }
 
+  function handleDeleteConfirmClick() {
+    setIsDeleteConfirmPopupOpen(true);
+  }
+
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
-    setSelectedCard(null);
+    setSelectedCardForOpen(null);
     setIsAuthPopupOpen(false);
+    setIsDeleteConfirmPopupOpen(false);
+    setSelectedCardForDelete(false);
+  }
+
+  function closePopupWithEsc(e) {
+    e.key === "Escape" && closeAllPopups();
+  }
+
+  function closePopupWithOverlayClick(e) {
+    e.target === e.currentTarget && closeAllPopups();
   }
 
   function handleUpdateUser(userInfo) {
@@ -198,10 +217,11 @@ function App() {
                 onEditProfile={handleEditProfileClick}
                 onAddPlace={handleAddPlaceClick}
                 onEditAvatar={handleEditAvatarClick}
-                onCardClick={setSelectedCard}
+                onCardClick={setSelectedCardForOpen}
                 cards={cards}
                 onCardLike={handleCardLike}
-                onCardDelete={handleCardDelete}
+                onCardConfirmDelete={setSelectedCardForDelete}
+                onConfirmDelete={handleDeleteConfirmClick}
                 component={Main}
               />
             } 
@@ -223,24 +243,36 @@ function App() {
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}
+          onCloseOverlayClick={closePopupWithOverlayClick}
           onUpdateUser={handleUpdateUser}
         />
 
         <EditAvatarPopup 
           isOpen={isEditAvatarPopupOpen} 
           onClose={closeAllPopups} 
+          onCloseOverlayClick={closePopupWithOverlayClick}
           onUpdateAvatar={handleUpdateAvarar}
         />
 
         <AddPlacePopup
           isOpen={isAddPlacePopupOpen} 
           onClose={closeAllPopups} 
+          onCloseOverlayClick={closePopupWithOverlayClick}
           onAddPlace={handleAddPlaceSubmit}
         />
 
         <ImagePopup
-          card={selectedCard}
+          card={selectedCardForOpen}
           onClose={closeAllPopups}
+          onCloseOverlayClick={closePopupWithOverlayClick}
+        />
+
+        <DeleteConfirmPopup
+          isOpen={isDeleteConfirmPopupOpen}
+          card={selectedCardForDelete}
+          onCardDelete={handleCardDelete}
+          onClose={closeAllPopups}
+          onCloseOverlayClick={closePopupWithOverlayClick}
         />
 
         <InfoTooltip
@@ -248,6 +280,7 @@ function App() {
           isAuthPopupOpen={isAuthPopupOpen}
           errorText={errorText}
           onClose={closeAllPopups}
+          onCloseOverlayClick={closePopupWithOverlayClick}
         />
       </CurrentUserContext.Provider>
     </div>

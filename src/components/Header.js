@@ -1,5 +1,5 @@
 import { React, useState } from 'react';
-import { Route, Routes, useNavigate, Link } from 'react-router-dom';
+import { Route, Routes, Link } from 'react-router-dom';
 import headerLogo from '../images/header-logo.svg';
 import headerGroupMenu from '../images/group-menu.svg';
 import headerCloseIcon from '../images/close-icon.svg';
@@ -31,14 +31,12 @@ function Header( { email, handleEmail, onLoggedIn } ) {
       {groupMenuList && 
         <div className="header__container_type_group-menu">
           <p className="header__email">{email}</p>
-          <Link to="/sign-in" className="header__signout" onClick={onSingOut}>Выйти </Link>
+          <Link to="/sign-in" className="header__signout" onClick={onSingOut}>Выйти</Link>
         </div>}
       <header className="header">
         <img className="header__logo" src={headerLogo} alt="Логотип Место Россия" />
         <Routes>
-          <Route
-            path="/" 
-            element={
+          <Route path="/" element={
               <>
                 <div className="header__container">
                   <p className="header__email">{email}</p>
@@ -48,18 +46,8 @@ function Header( { email, handleEmail, onLoggedIn } ) {
               </>
             }
           />
-          <Route
-            path="/sign-up" 
-            element={
-              <Link to="/sign-in" className="header__link">Войти</Link>
-            }
-          />
-          <Route
-            path="/sign-in" 
-            element={
-              <Link to="/sign-up" className="header__link">Регистрация</Link>
-            }
-          />
+          <Route path="/sign-up" element={<Link to="/sign-in" className="header__link">Войти</Link>}/>
+          <Route path="/sign-in" element={<Link to="/sign-up" className="header__link">Регистрация</Link>}/>
         </Routes>
       </header>
     </>
